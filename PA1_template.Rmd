@@ -1,25 +1,40 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+title: "Reproducible Research_project 1"
+output: html_document
 ---
 
 
-## Loading and preprocessing the data
+```{r,echo=TRUE}
+library(dplyr)
+data<-read.csv("activity.csv")
+na_omit<-na.omit(data)
+sumdata<-summarise(group_by(na_omit,date),stepsum=sum(na_omit$step,na.rm=TRUE))
+hist(sumdata$stepsum)
+mean<-mean(sumdata$stepsum,na.rm=TRUE)
+print(mean)
+median<-median(sumdata$stepsum,na.rm=TRUE)
+print(median)
 
 
-
-## What is mean total number of steps taken per day?
-
+```
 
 
-## What is the average daily activity pattern?
+```{r,echo=TRUE}
+mean_interval<- summarise(group_by(na_omit,interval),meanstep=mean(na_omit$step,na.rm=TRUE))
+plot(mean_interval)
+max(mean_interval)
+```
+My strategy is using the mean for that 5-minute interval to subsititute the NA 
+```{r,echo=TRUE}
+sum(is.na(data))
+newdata<-merge(data,mean_interval,by.x="interval",by.y="interval")
+newdata$steps[is.na(newdata$steps)]<-newdata$meanstep[is.na(newdata$steps)]
+sumdata2<-summarise(group_by(newdata,date),stepsum=sum(newdata$steps,na.rm=TRUE))
+hist(sumdata2$stepsum)
+mean2<-mean(sumdata2$stepsum,na.rm=TRUE)
+print(mean2)
+median2<-median(sumdata2$stepsum,na.rm=TRUE)
+print(median2)
+```
+The mean is equal to previous one. The median has changed.
 
-
-
-## Imputing missing values
-
-
-
-## Are there differences in activity patterns between weekdays and weekends?
